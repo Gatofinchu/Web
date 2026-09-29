@@ -227,25 +227,44 @@ function actualizarIndicadores() {
 
 // Construye el pixel art de un monstruo a partir de su medio patrón,
 // reflejándolo en espejo para completar las 11 columnas.
+//
+// "mitad" es un array de strings como "..1111" (una fila cada uno, 6
+// caracteres = 6 columnas, de fuera hacia el centro). Para no tener que
+// diseñar el monstruo entero a mano, cada fila se completa reflejando
+// sus primeros caracteres al revés: por ejemplo "..1111" se convierte en
+// "..1111" + "1111.." invertido y recortado = "..1111" + "111.." →
+// once caracteres finales, simétricos respecto a la última columna.
 function construirPixelArt(contenedor, mitad) {
   const filas = mitad.length;
   const columnas = mitad[0].length * 2 - 1; // la última columna del medio patrón es el eje central
 
+  // grid-template-columns/rows le dice al CSS Grid cuántas celdas dibujar;
+  // así no hace falta un valor fijo en el CSS para cada monstruo.
   contenedor.style.gridTemplateColumns = `repeat(${columnas}, 1fr)`;
   contenedor.style.gridTemplateRows = `repeat(${filas}, 1fr)`;
-  contenedor.innerHTML = "";
+  contenedor.innerHTML = ""; // limpia el monstruo anterior antes de dibujar el nuevo
 
   mitad.forEach((mediaFila) => {
+    // slice(0, -1): todo menos el último carácter (el eje central no se
+    // duplica, o saldría una columna de más). reverse() le da la vuelta
+    // para que el reflejo quede a continuación, como en un espejo real.
     const mitadInvertida = mediaFila.slice(0, -1).split("").reverse().join("");
     const filaCompleta = mediaFila + mitadInvertida;
 
+    // Un <div class="pixel"> por cada carácter de la fila ya completa.
     for (const caracter of filaCompleta) {
       const pixel = document.createElement("div");
       pixel.className = "pixel";
       if (caracter !== ".") {
+        // PIXEL_CLASES traduce el código ("1", "2"...) a la clase CSS que
+        // le da su color (ver style.css: .pixel-cuerpo, .pixel-ojo...).
         pixel.classList.add(PIXEL_CLASES[caracter]);
       } else {
-        pixel.style.visibility = "hidden"; // hueco: ocupa espacio en la rejilla pero no se ve
+        // Un hueco: se deja invisible en vez de no crear el div, porque
+        // en un grid cada celda ocupa su sitio se vea o no. Si se
+        // saltara el div, todas las columnas siguientes de esa fila se
+        // desplazarían una posición y el dibujo saldría descuadrado.
+        pixel.style.visibility = "hidden";
       }
       contenedor.appendChild(pixel);
     }
@@ -256,9 +275,13 @@ function construirPixelArt(contenedor, mitad) {
 // cambiamos de jefe (o reiniciamos), nunca durante la ronda en curso.
 function actualizarMonstruo() {
   const monstruo = monstruos[jefeActual];
+  // setProperty() cambia el VALOR de una variable CSS desde JS. Como el
+  // CSS ya usa var(--color-jefe) en varios sitios (título, pixel art,
+  // borde al pasar el ratón...), con esta única línea se repinta todo
+  // eso a la vez sin tocar ninguna clase.
   document.documentElement.style.setProperty("--color-jefe", monstruo.colorJefe);
   document.documentElement.style.setProperty("--color-jefe-claro", monstruo.colorJefeClaro);
-  elMonstruo.classList.remove("derrotado");
+  elMonstruo.classList.remove("derrotado"); // por si venía de la animación de muerte del jefe anterior
   construirPixelArt(elMonstruo, monstruo.mitad);
 }
 
@@ -352,22 +375,37 @@ function usarHabilidad() {
 // 8. CLICKS EN EL TABLERO (delegación de eventos: UN solo listener)
 // ============================================================
 
+// Único listener puesto en el CONTENEDOR del tablero (elTablero), no en
+// cada una de las 9 casillas: es "delegación de eventos". El click sube
+// (burbujea) desde el <button> hasta aquí, y evento.target nos dice
+// exactamente en qué casilla se hizo click. Con esto basta un solo
+// addEventListener en vez de nueve.
 function manejarClicTablero(evento) {
-  if (turno !== "jugador") return;
-  if (!evento.target.classList.contains("casilla")) return;
+  if (turno !== "jugador") return; // por seguridad: si no es tu turno, ignora el click
+  if (!evento.target.classList.contains("casilla")) return; // click en el hueco entre casillas, no en un botón
 
-  const indice = Number(evento.target.dataset.index);
+  const indice = Number(evento.target.dataset.index); // el data-index del HTML nos dice qué casilla es (0-8)
 
   // --- Estamos esperando el objetivo de una habilidad ---
+  // Esta rama solo se ejecuta si antes se pulsó el botón de habilidad
+  // (usarHabilidad puso modoHabilidad = true). Cada habilidad valida un
+  // tipo de casilla distinto antes de aplicarse.
   if (modoHabilidad) {
     const tipo = jefes[jefeActual].habilidad;
     const casillaVacia = tablero[indice] === null && !bloqueadas.includes(indice);
 
     if (tipo === "robar" && tablero[indice] === "O") {
+      // Robar: la O elegida se convierte en X, y se mueve de un
+      // historial al otro para que ambas listas seguan siendo ciertas
+      // (por ejemplo, para que "roboInverso" no intente robar una
+      // casilla que ya no es del jugador).
       tablero[indice] = "X";
       historialJefe = historialJefe.filter((i) => i !== indice);
       historialJugador.push(indice);
     } else if (tipo === "bloquear" && casillaVacia) {
+      // Bloquear: la casilla no se pinta, solo se añade a "bloqueadas"
+      // (renderTablero() es quien decide, con esa lista, cómo se ve y
+      // si se puede pulsar).
       bloqueadas.push(indice);
     } else if (tipo === "extra" && casillaVacia) {
       // "Añadir casilla extra": coloca una X de regalo. No es tu jugada
@@ -375,13 +413,22 @@ function manejarClicTablero(evento) {
       tablero[indice] = "X";
       historialJugador.push(indice);
     } else {
-      return; // click no válido para esta habilidad: seguimos esperando
+      // Click en una casilla que no vale para esta habilidad (por
+      // ejemplo, pulsar una casilla vacía mientras "robar" pide una O):
+      // no hacemos nada y seguimos esperando un click válido.
+      return;
     }
 
+    // A partir de aquí la habilidad SÍ se ha usado: se gasta (una sola
+    // vez por ronda) y se sale del modo de espera.
     habilidadDisponible = false;
     modoHabilidad = false;
 
     if (tipo === "extra") {
+      // "extra" es la única habilidad que no cede el turno automáticamente:
+      // primero comprobamos si esa ficha de regalo, ella sola, ya te ha
+      // hecho ganar o ha llenado el tablero (mismas comprobaciones que
+      // hace finalizarTurnoJugador para una jugada normal).
       const resultado = comprobarGanador(tablero);
       if (resultado === "X") {
         renderTablero();
@@ -399,14 +446,16 @@ function manejarClicTablero(evento) {
       return;
     }
 
+    // "robar" y "bloquear" sí cuentan como el turno completo del
+    // jugador, así que aquí terminamos su turno normalmente.
     renderTablero();
     actualizarBotonHabilidad();
     finalizarTurnoJugador();
     return;
   }
 
-  // --- Jugada normal ---
-  if (tablero[indice] !== null || bloqueadas.includes(indice)) return;
+  // --- Jugada normal (sin ninguna habilidad activa) ---
+  if (tablero[indice] !== null || bloqueadas.includes(indice)) return; // casilla ocupada o congelada: no se puede jugar ahí
   tablero[indice] = "X";
   historialJugador.push(indice);
   renderTablero();
@@ -434,9 +483,11 @@ function finalizarTurnoJugador() {
 }
 
 function turnoJefe() {
-  const PROBABILIDAD_TRAMPA = 0.35;
+  const PROBABILIDAD_TRAMPA = 0.35; // 35% de posibilidades CADA turno de jefe, no un turno fijo (ver Autopsia en el README)
   let mensajeTrampa = "";
 
+  // trampaUsada limita la trampa a una vez por ronda; si no toca trampa
+  // (o ya se usó), el jefe simplemente mueve según su dificultad.
   if (!trampaUsada && Math.random() < PROBABILIDAD_TRAMPA) {
     trampaUsada = true;
     mensajeTrampa = ejecutarTrampa(jefes[jefeActual].trampa);
@@ -472,9 +523,16 @@ function turnoJefe() {
 // 10. RESULTADOS DE RONDA
 // ============================================================
 
-const DURACION_MUERTE_MS = 700; // debe coincidir con la duración de @keyframes muerte en style.css
+// Tiene que coincidir con la duración de "animation: muerte" en style.css
+// (0.7s): si un día cambias una de las dos, cambia también la otra, o el
+// jefe siguiente aparecerá antes de que termine la animación del anterior.
+const DURACION_MUERTE_MS = 700;
 
 // Suelta unos cuantos cuadraditos de colores cayendo, solo para la victoria final.
+// Cada pieza es un <div class="confeti"> (su forma y su caída están en
+// style.css); aquí solo se decide, por cada una, DÓNDE empieza (left al
+// azar), DE QUÉ COLOR es y CUÁNTO tarda en caer, y se borra sola del DOM
+// en cuanto termina su animación para no dejar basura acumulada.
 function lanzarConfeti() {
   const colores = ["#2f855a", "#553c9a", "#9b2c2c", "#ecc94b", "#3182ce"];
   for (let i = 0; i < 26; i++) {
@@ -488,6 +546,12 @@ function lanzarConfeti() {
   }
 }
 
+// Se llama en cuanto el jugador gana la ronda actual. Se divide en dos
+// mitades separadas por un setTimeout: primero se deja ver morir al
+// jefe (con el tablero ya bloqueado), y SOLO cuando esa animación ha
+// terminado se avanza de verdad al siguiente jefe. Si avanzáramos antes,
+// el jugador vería aparecer al jefe nuevo a mitad de la animación del
+// anterior, que quedaría muy raro.
 function ganarRonda() {
   rondasGanadas++;
 
@@ -506,9 +570,14 @@ function ganarRonda() {
     jefeActual++;
 
     if (jefeActual >= jefes.length) {
-      jefeActual = 0; // se prepara para una nueva vuelta si el jugador reinicia
+      // Has vencido a los 3: prepararRonda() ya deja el tablero limpio y
+      // reconstruye el monstruo (aquí, el del jefe 0 = Novato, por si
+      // el jugador pulsa R y quiere dar otra vuelta), pero justo después
+      // forzamos turno = "fin" para que ese tablero limpio NO sea
+      // jugable: la partida ha terminado del todo, no es una ronda más.
+      jefeActual = 0;
       prepararRonda();
-      turno = "fin"; // la partida ha terminado del todo: el tablero queda bloqueado
+      turno = "fin";
       renderTablero();
       actualizarBotonHabilidad();
       actualizarMensaje("🏆 ¡Has vencido a los 3 jefes! Pulsa R para volver a jugar.");
@@ -516,6 +585,8 @@ function ganarRonda() {
       return;
     }
 
+    // Queda algún jefe más: prepararRonda() ya deja turno = "jugador" y
+    // dibuja al jefe siguiente (actualizarMonstruo se llama dentro de ella).
     prepararRonda();
     actualizarMensaje(`¡Has ganado! Empieza el siguiente jefe: ${jefes[jefeActual].nombre}`);
   }, DURACION_MUERTE_MS);
@@ -541,7 +612,10 @@ function perderVida() {
   prepararRonda();
 }
 
-// Reinicia el tablero para un nuevo intento, manteniendo vidas y rondas ganadas.
+// Reinicia el tablero para un nuevo intento, manteniendo vidas y rondas
+// ganadas. Se llama tanto al empezar la partida como tras cada empate,
+// derrota o victoria de ronda: es el único sitio que resetea TODO el
+// estado de una ronda, para no tener esa lógica repetida en cada caso.
 function prepararRonda() {
   tablero = Array(9).fill(null);
   bloqueadas = [];
@@ -552,7 +626,7 @@ function prepararRonda() {
   modoHabilidad = false;
   trampaUsada = false;
 
-  actualizarMonstruo();
+  actualizarMonstruo(); // redibuja el jefe actual (color + pixel art) y le quita "derrotado"
   renderTablero();
   actualizarIndicadores();
   actualizarBotonHabilidad();
@@ -568,15 +642,21 @@ function reiniciarIntento() {
 // 11. EVENTOS GLOBALES Y ARRANQUE DEL JUEGO
 // ============================================================
 
+// Solo TRES listeners en total para todo el juego: uno por delegación
+// en el tablero (las 9 casillas comparten este mismo), uno en el botón
+// de habilidad y uno en el de reiniciar.
 elTablero.addEventListener("click", manejarClicTablero);
 elBotonHabilidad.addEventListener("click", usarHabilidad);
 elBotonReiniciar.addEventListener("click", reiniciarIntento);
 
+// Atajos de teclado globales, en el propio "document" (no en un elemento
+// concreto) para que funcionen esté el foco donde esté en la página.
 document.addEventListener("keydown", (evento) => {
-  const tecla = evento.key.toLowerCase();
+  const tecla = evento.key.toLowerCase(); // toLowerCase para que "R" y "r" hagan lo mismo
   if (tecla === "r") reiniciarIntento();
   if (tecla === "d") document.body.classList.toggle("dark"); // truco secreto (bonus)
 });
 
-// Estado inicial al cargar la página.
+// Estado inicial al cargar la página: usamos la misma función que reinicia
+// una ronda cualquiera, así no hay una versión "de arranque" duplicada.
 prepararRonda();
