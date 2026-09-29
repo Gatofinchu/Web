@@ -1,0 +1,175 @@
+/* ===== Variables de color (claro / oscuro) ===== */
+:root {
+  --fondo: #f4f4f8;
+  --texto: #1a1a2e;
+  --panel: #ffffff;
+  --borde: #d0d0e0;
+  --acento-x: #2c5282;
+  --acento-o: #c53030;
+  --acento-bloqueada: #a0aec0;
+  --boton: #2c5282;
+  --boton-texto: #ffffff;
+}
+
+body.dark {
+  --fondo: #131320;
+  --texto: #f0f0f5;
+  --panel: #1e1e30;
+  --borde: #3a3a55;
+  --acento-x: #63b3ed;
+  --acento-o: #fc8181;
+  --acento-bloqueada: #4a5568;
+  --boton: #63b3ed;
+  --boton-texto: #131320;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.contenedor {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.subtitulo {
+  color: #718096;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.panel-estado {
+  display: flex;
+  justify-content: space-between;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.mensaje {
+  font-weight: 700;
+  min-height: 24px;
+  margin: 10px 0 18px;
+}
+
+.tablero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0 auto 20px;
+}
+
+.casilla {
+  aspect-ratio: 1 / 1;
+  font-size: 2rem;
+  font-weight: 800;
+  background: var(--panel);
+  border: 2px solid var(--borde);
+  border-radius: 10px;
+  color: var(--texto);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.3s ease, transform 0.1s ease;
+}
+
+.casilla:hover:not(:disabled) {
+  transform: scale(1.03);
+}
+
+.casilla:disabled {
+  cursor: not-allowed;
+}
+
+/* Colorea la X y la O directamente según su contenido de texto */
+.casilla.marca-x { color: var(--acento-x); }
+.casilla.marca-o { color: var(--acento-o); }
+
+.casilla.bloqueada {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--panel),
+    var(--panel) 6px,
+    var(--acento-bloqueada) 6px,
+    var(--acento-bloqueada) 12px
+  );
+  opacity: 0.6;
+}
+
+.controles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.boton {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.boton-habilidad {
+  background: var(--boton);
+  color: var(--boton-texto);
+}
+
+.boton-habilidad:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Se activa mientras esperamos que el jugador elija el objetivo de su habilidad */
+.boton-habilidad.esperando-objetivo {
+  animation: parpadeo 0.8s infinite;
+  outline: 3px solid var(--acento-o);
+}
+
+@keyframes parpadeo {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.boton-secundario {
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--borde);
+}
+
+.pista {
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+kbd {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: monospace;
+}
