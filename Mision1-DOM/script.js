@@ -16,7 +16,7 @@
 const jefes = [
   { nombre: "Novato",    dificultad: "random",  trampa: "doble",           habilidad: "robar"    },
   { nombre: "Estratega", dificultad: "bloquea", trampa: "roboInverso",     habilidad: "bloquear" },
-  { nombre: "Maestro",   dificultad: "optimo",  trampa: "deshacerInverso", habilidad: "deshacer" },
+  { nombre: "Maestro",   dificultad: "optimo",  trampa: "deshacerInverso", habilidad: "extra"    },
 ];
 
 // ---------- 1b. PIXEL ART DE CADA JEFE (dibujo original, no de ningún juego) ----------
@@ -185,14 +185,17 @@ function elegirMovimientoJefe(dificultad) {
 
 // Decide si una casilla debe poder pulsarse, según si estamos en juego
 // normal o esperando el objetivo de una habilidad (que acepta casillas
-// distintas: "robar" necesita una casilla con O, "bloquear" una vacía).
+// distintas: "robar" necesita una casilla con O; "bloquear" y "extra"
+// necesitan una casilla vacía).
 function casillaEsClicable(indice) {
   const valor = tablero[indice];
 
   if (modoHabilidad) {
     const tipo = jefes[jefeActual].habilidad;
     if (tipo === "robar") return valor === "O";
-    if (tipo === "bloquear") return valor === null && !bloqueadas.includes(indice);
+    if (tipo === "bloquear" || tipo === "extra") {
+      return valor === null && !bloqueadas.includes(indice);
+    }
     return false;
   }
 
@@ -263,7 +266,7 @@ function actualizarBotonHabilidad() {
   const nombresHabilidad = {
     robar: "Robar casilla",
     bloquear: "Bloquear casilla",
-    deshacer: "Deshacer jugada del jefe",
+    extra: "Añadir casilla extra",
   };
   const nombre = nombresHabilidad[jefes[jefeActual].habilidad];
   elBotonHabilidad.textContent = `${nombre} (${habilidadDisponible ? 1 : 0})`;
@@ -330,28 +333,19 @@ function usarHabilidad() {
 
   const tipo = jefes[jefeActual].habilidad;
 
-  if (tipo === "deshacer") {
-    // Esta habilidad no necesita elegir una casilla: actúa al momento.
-    if (historialJefe.length === 0) return;
-    const indice = historialJefe.pop();
-    tablero[indice] = null;
-    habilidadDisponible = false;
-    renderTablero();
-    actualizarBotonHabilidad();
-    finalizarTurnoJugador();
-    return;
-  }
-
-  // "robar" y "bloquear" necesitan que el jugador elija una casilla objetivo,
-  // así que solo activamos el "modo habilidad" y esperamos ese click.
+  // Las tres habilidades ("robar", "bloquear" y "extra") necesitan que el
+  // jugador elija una casilla objetivo, así que solo activamos el "modo
+  // habilidad" y esperamos ese click (ver manejarClicTablero).
   modoHabilidad = true;
   renderTablero(); // recalcula qué casillas son clicables en este modo
   actualizarBotonHabilidad();
-  actualizarMensaje(
-    tipo === "robar"
-      ? "Elige una casilla del jefe (O) para robarla"
-      : "Elige una casilla vacía para bloquearla"
-  );
+
+  const mensajes = {
+    robar: "Elige una casilla del jefe (O) para robarla",
+    bloquear: "Elige una casilla vacía para bloquearla",
+    extra: "Elige una casilla vacía para colocar una ficha extra",
+  };
+  actualizarMensaje(mensajes[tipo]);
 }
 
 // ============================================================
@@ -367,19 +361,44 @@ function manejarClicTablero(evento) {
   // --- Estamos esperando el objetivo de una habilidad ---
   if (modoHabilidad) {
     const tipo = jefes[jefeActual].habilidad;
+    const casillaVacia = tablero[indice] === null && !bloqueadas.includes(indice);
 
     if (tipo === "robar" && tablero[indice] === "O") {
       tablero[indice] = "X";
       historialJefe = historialJefe.filter((i) => i !== indice);
       historialJugador.push(indice);
-    } else if (tipo === "bloquear" && tablero[indice] === null && !bloqueadas.includes(indice)) {
+    } else if (tipo === "bloquear" && casillaVacia) {
       bloqueadas.push(indice);
+    } else if (tipo === "extra" && casillaVacia) {
+      // "Añadir casilla extra": coloca una X de regalo. No es tu jugada
+      // normal, así que el turno NO pasa al jefe todavía (ver más abajo).
+      tablero[indice] = "X";
+      historialJugador.push(indice);
     } else {
       return; // click no válido para esta habilidad: seguimos esperando
     }
 
     habilidadDisponible = false;
     modoHabilidad = false;
+
+    if (tipo === "extra") {
+      const resultado = comprobarGanador(tablero);
+      if (resultado === "X") {
+        renderTablero();
+        return ganarRonda();
+      }
+      if (tableroLleno(tablero)) {
+        renderTablero();
+        return empatarRonda();
+      }
+      // El tablero sigue vivo: el jugador conserva su turno y hace su
+      // jugada normal a continuación, con la ficha extra ya puesta.
+      renderTablero();
+      actualizarBotonHabilidad();
+      actualizarMensaje("¡Ficha extra colocada! Ahora haz tu jugada normal.");
+      return;
+    }
+
     renderTablero();
     actualizarBotonHabilidad();
     finalizarTurnoJugador();
