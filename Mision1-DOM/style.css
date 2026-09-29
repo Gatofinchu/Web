@@ -1,25 +1,47 @@
-/* ===== Paleta base (claro) ===== */
+/* ============================================================
+   TRES EN RAYA: CAZADOR DE JEFES — ESTILOS
+   ============================================================
+   Todo el color del juego vive en "variables CSS" (custom
+   properties, las que empiezan por --). La idea es no escribir
+   colores sueltos por todo el archivo: se definen una vez aquí
+   arriba y el resto del CSS solo dice "usa var(--el-nombre)".
+   Esto tiene dos ventajas prácticas en este proyecto:
+     1) El modo oscuro (body.dark) solo tiene que REDEFINIR estas
+        mismas variables, sin tocar ni una regla más.
+     2) JavaScript puede cambiar --color-jefe y --color-jefe-claro
+        cada vez que cambias de jefe, y automáticamente se repinta
+        todo lo que use esas variables (el subtítulo, el borde al
+        pasar el ratón por una casilla, el pixel art...).
+   ============================================================ */
+
+/* ===== Paleta base (modo claro, la que se ve por defecto) ===== */
 :root {
-  --fondo: #eef1f8;
-  --fondo-patron: #e2e7f5;
-  --texto: #1a1a2e;
-  --panel: #ffffff;
-  --borde: #c9cfe6;
-  --sombra: rgba(30, 30, 60, 0.15);
+  --fondo: #eef1f8;              /* color de fondo de toda la página */
+  --fondo-patron: #e2e7f5;       /* líneas del cuadriculado de fondo (más claras que --fondo) */
+  --texto: #1a1a2e;              /* color de texto general */
+  --panel: #ffffff;              /* fondo de las "tarjetas" (panel de estado, casillas, escenario) */
+  --borde: #c9cfe6;              /* borde de esas tarjetas */
+  --sombra: rgba(30, 30, 60, 0.15); /* sombra suave, usada como "borde inferior" tipo botón 3D */
 
-  --acento-x: #2c5282;
-  --acento-o: #c53030;
-  --acento-bloqueada: #a0aec0;
+  --acento-x: #2c5282;           /* color de las fichas del jugador (X) */
+  --acento-o: #c53030;           /* color de las fichas del jefe (O) y de los avisos de trampa */
+  --acento-bloqueada: #a0aec0;   /* color del rayado en una casilla bloqueada */
 
-  --boton: #2c5282;
+  --boton: #2c5282;              /* fondo del botón de habilidad */
   --boton-texto: #ffffff;
 
-  /* Color del jefe actual: lo cambia JS según la ronda */
+  /* Estas dos las reescribe JavaScript (actualizarMonstruo() en script.js)
+     cada vez que cambia el jefe actual, para que el título, el pixel art
+     y algún borde se tiñan del color de ese jefe sin tocar el CSS. */
   --color-jefe: #2f855a;
   --color-jefe-claro: #48bb78;
 }
 
-/* ===== Paleta oscura ===== */
+/* ===== Paleta oscura =====
+   Se activa poniendo la clase "dark" en <body> (lo hace script.js al
+   pulsar la tecla D). Como todas las reglas de abajo usan var(--algo)
+   en vez de colores fijos, con solo redefinir las variables aquí
+   cambia el aspecto de TODA la página, sin duplicar ni una regla. */
 body.dark {
   --fondo: #0f0f1e;
   --fondo-patron: #16172b;
@@ -36,6 +58,10 @@ body.dark {
   --boton-texto: #0f0f1e;
 }
 
+/* box-sizing: border-box en todo el documento: así el padding y el
+   borde de un elemento se cuentan DENTRO de su ancho/alto declarado,
+   en vez de sumarse por fuera. Evita sorpresas al poner padding a las
+   casillas o a los botones. */
 * {
   box-sizing: border-box;
 }
@@ -43,44 +69,55 @@ body.dark {
 body {
   margin: 0;
   min-height: 100vh;
+  /* flex + center centra el juego entero en medio de la pantalla,
+     sin necesidad de calcular márgenes a mano. */
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--texto);
   background-color: var(--fondo);
+  /* Dos gradientes lineales (uno horizontal, otro vertical) de 1px de
+     grosor repetidos cada 24px: es el truco clásico para dibujar un
+     fondo cuadriculado sin usar ninguna imagen. */
   background-image:
     linear-gradient(var(--fondo-patron) 1px, transparent 1px),
     linear-gradient(90deg, var(--fondo-patron) 1px, transparent 1px);
   background-size: 24px 24px;
+  /* Transición suave al cambiar a modo oscuro, en vez de un salto brusco. */
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .contenedor {
   width: 100%;
-  max-width: 440px;
+  max-width: 440px; /* limita el ancho en pantallas grandes, para que no se estire de más */
   padding: 28px 24px 36px;
   text-align: center;
 }
 
 h1 {
-  font-family: "Press Start 2P", monospace;
+  font-family: "Press Start 2P", monospace; /* tipografía retro cargada desde Google Fonts en el <head> */
   font-size: 1.1rem;
-  line-height: 1.6;
+  line-height: 1.6; /* más alto de lo normal porque esta fuente pixelada necesita aire entre líneas */
   margin-bottom: 18px;
   color: var(--texto);
   letter-spacing: 1px;
 }
 
 .h1-sub {
+  /* El subtítulo ("Cazador de Jefes") va en su propia línea dentro del <h1>,
+     y se pinta con el color del jefe actual: otro sitio más donde
+     --color-jefe hace su trabajo sin que este CSS sepa qué jefe es. */
   display: block;
   font-size: 0.65rem;
   color: var(--color-jefe);
   margin-top: 6px;
-  transition: color 0.4s ease;
+  transition: color 0.4s ease; /* para que el cambio de color al pasar de jefe no sea un salto brusco */
 }
 
 .panel-estado {
+  /* Fila con el nombre del jefe a la izquierda y las vidas/rondas a la
+     derecha: flex + space-between las empuja a los extremos. */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -91,29 +128,38 @@ h1 {
   margin-bottom: 10px;
   font-weight: 700;
   font-size: 0.85rem;
+  /* Sombra desplazada solo hacia abajo (0 2px 0, sin difuminado): da un
+     efecto de "tarjeta con grosor" en vez de una sombra realista difusa. */
   box-shadow: 0 2px 0 var(--sombra);
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* ===== Escenario del monstruo (pixel art) ===== */
 .escenario-monstruo {
+  /* Misma "tarjeta" que .panel-estado (incluso el mismo box-shadow),
+     para que el escenario del jefe se sienta parte del mismo sistema
+     visual en vez de un elemento suelto. */
   background: var(--panel);
   border: 2px solid var(--borde);
   border-radius: 10px;
   padding: 14px 0 10px;
   margin-bottom: 10px;
   box-shadow: 0 2px 0 var(--sombra);
-  overflow: hidden;
+  overflow: hidden; /* recorta al monstruo cuando "cae" fuera de la tarjeta en la animación de muerte */
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .pixel-art {
+  /* Este div lo rellena JavaScript con un montón de <div class="pixel">
+     hijos (uno por cada "píxel" del monstruo) mediante CSS Grid: JS solo
+     dice cuántas columnas/filas tiene el patrón y el navegador coloca
+     cada pixel en su sitio automáticamente. */
   display: grid;
   margin: 0 auto;
   width: 132px;
-  aspect-ratio: 11 / 8;
-  image-rendering: pixelated;
-  animation: flotar 2.4s ease-in-out infinite;
+  aspect-ratio: 11 / 8; /* 11 columnas x 8 filas: la proporción del patrón que dibuja script.js */
+  image-rendering: pixelated; /* si algún navegador escala esto como imagen, que no lo suavice */
+  animation: flotar 2.4s ease-in-out infinite; /* pequeño balanceo continuo para que no se vea estático */
 }
 
 .pixel {
@@ -121,6 +167,11 @@ h1 {
   height: 100%;
 }
 
+/* Colores de cada "tipo" de píxel. script.js decide, casilla a casilla,
+   cuál de estas cuatro clases le pone a cada div según el patrón del
+   monstruo (ver PIXEL_CLASES en script.js). Las dos primeras usan las
+   variables de color del jefe actual: por eso el mismo dibujo sale
+   verde, morado o rojo según a quién te enfrentes, sin duplicar CSS. */
 .pixel-cuerpo { background: var(--color-jefe); }
 .pixel-cuerpo-claro { background: var(--color-jefe-claro); }
 .pixel-ojo { background: #ffffff; }
@@ -131,12 +182,19 @@ h1 {
   50% { transform: translateY(-6px); }
 }
 
-/* El jefe "muere" al perder la ronda contra el jugador */
+/* El jefe "muere" cuando le ganas la ronda: script.js le añade la clase
+   "derrotado" justo al ganar, y aquí se dispara la animación @keyframes
+   muerte. "forwards" hace que el estado final (opacity: 0) se quede
+   aplicado al terminar, en vez de que el monstruo reaparezca de golpe. */
 .pixel-art.derrotado {
   animation: muerte 0.7s ease-in forwards;
 }
 
 @keyframes muerte {
+  /* Secuencia pensada como un "golpe": primero un destello brillante
+     (brightness sube, satura baja = parece un flash blanco), luego
+     una sacudida de lado a lado (rotate alternando signo), y por
+     último se encoge, cae un poco y se desvanece. */
   0%   { transform: translateY(0) scale(1) rotate(0deg); filter: brightness(1) saturate(1); opacity: 1; }
   15%  { transform: translateY(-4px) scale(1.12) rotate(-6deg); filter: brightness(2.4) saturate(0.3); }
   35%  { transform: translateY(2px) scale(0.9) rotate(6deg); filter: brightness(1) saturate(1); }
@@ -146,12 +204,14 @@ h1 {
 
 .mensaje {
   font-weight: 700;
-  min-height: 24px;
+  min-height: 24px; /* para que el layout no "salte" cuando el mensaje pasa de vacío a tener texto */
   margin: 4px 0 14px;
   font-size: 0.95rem;
 }
 
-/* Aviso visual cuando el jefe hace trampa */
+/* Cuando el jefe hace trampa, script.js le pasa "true" a actualizarMensaje()
+   y eso añade esta clase: el mensaje se pinta del color de aviso (--acento-o)
+   y se sacude una vez, para que la trampa se note aunque no leas el texto. */
 .mensaje.aviso-trampa {
   color: var(--acento-o);
   animation: sacudida 0.4s ease;
@@ -166,6 +226,8 @@ h1 {
 }
 
 .tablero {
+  /* Grid de 3 columnas iguales (1fr = una fracción del espacio disponible,
+     y como hay 3 columnas de "1fr" cada una mide 1/3 del ancho). */
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
@@ -173,7 +235,7 @@ h1 {
 }
 
 .casilla {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 1; /* obliga a la casilla a ser siempre cuadrada, mida lo que mida el tablero */
   font-size: 2.1rem;
   font-weight: 800;
   background: var(--panel);
@@ -185,13 +247,17 @@ h1 {
   box-shadow: 0 2px 0 var(--sombra);
 }
 
+/* :not(:disabled) evita que estos efectos de hover/click se apliquen a
+   una casilla deshabilitada (ocupada, bloqueada o cuando no es tu turno):
+   si no, el ratón "reaccionaría" visualmente a una casilla en la que en
+   realidad no puedes hacer nada, lo cual confunde al jugador. */
 .casilla:hover:not(:disabled) {
-  transform: translateY(-2px);
+  transform: translateY(-2px); /* la casilla "se levanta" un poco al pasar el ratón */
   border-color: var(--color-jefe);
 }
 
 .casilla:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(0); /* y "baja" de nuevo al hacer click, simulando que se pulsa */
 }
 
 .casilla:disabled {
@@ -202,15 +268,24 @@ h1 {
 .casilla.marca-o { color: var(--acento-o); }
 
 @keyframes aparece {
+  /* De invisible y "encogida/girada" a su tamaño normal: es el efecto
+     de "pop" que se ve al colocar una ficha. */
   from { transform: scale(0) rotate(-15deg); opacity: 0; }
   to   { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
 .casilla.marca-x, .casilla.marca-o {
+  /* Esta animación se relanza sola cada vez que renderTablero() vuelve a
+     poner la clase marca-x/marca-o en una casilla (por ejemplo, al
+     colocar una ficha nueva), porque el navegador reinicia @keyframes
+     cuando una clase con animation se vuelve a aplicar. */
   animation: aparece 0.22s ease-out;
 }
 
 .casilla.bloqueada {
+  /* Rayado diagonal repetido a mano con repeating-linear-gradient, en vez
+     de una imagen: alterna el color del panel y --acento-bloqueada cada
+     6px para simular una casilla "cerrada con cinta". */
   background: repeating-linear-gradient(
     45deg,
     var(--panel),
@@ -240,7 +315,7 @@ h1 {
 .boton-habilidad {
   background: var(--boton);
   color: var(--boton-texto);
-  box-shadow: 0 3px 0 var(--sombra);
+  box-shadow: 0 3px 0 var(--sombra); /* sombra más gruesa que las tarjetas: simula un botón "pulsable" en 3D */
 }
 
 .boton-habilidad:hover:not(:disabled) {
@@ -248,6 +323,8 @@ h1 {
 }
 
 .boton-habilidad:active:not(:disabled) {
+  /* Al pulsarlo, baja y su sombra se hace más fina: da la sensación de
+     que el botón físicamente se hunde. */
   transform: translateY(2px);
   box-shadow: 0 1px 0 var(--sombra);
 }
@@ -258,17 +335,25 @@ h1 {
   box-shadow: none;
 }
 
-/* Pulso suave cuando la habilidad está lista para usarse */
+/* Pulso suave y continuo mientras la habilidad está lista para usarse,
+   para llamar la atención sobre ella sin ser tan intrusivo como el
+   parpadeo de "esperando-objetivo" de aquí abajo. */
 .boton-habilidad:not(:disabled) {
   animation: pulso-listo 1.8s ease-in-out infinite;
 }
 
 @keyframes pulso-listo {
+  /* color-mix() mezcla el color del botón con transparente: crea un halo
+     del mismo color que el botón (en vez de un halo blanco fijo que
+     desentonaría en modo oscuro). */
   0%, 100% { box-shadow: 0 3px 0 var(--sombra); }
   50% { box-shadow: 0 3px 0 var(--sombra), 0 0 0 4px color-mix(in srgb, var(--boton) 35%, transparent); }
 }
 
-/* Se activa mientras esperamos que el jugador elija el objetivo de su habilidad */
+/* Se activa mientras esperamos que el jugador elija el objetivo de su
+   habilidad (robar/bloquear/añadir casilla extra): el parpadeo es más
+   rápido y notorio que el pulso normal, porque aquí sí es una acción a
+   medias que el jugador tiene que terminar. */
 .boton-habilidad.esperando-objetivo {
   animation: parpadeo 0.7s infinite;
   outline: 3px solid var(--acento-o);
@@ -280,6 +365,8 @@ h1 {
 }
 
 .boton-secundario {
+  /* El botón de reiniciar es "fantasma" (sin relleno) para que no compita
+     visualmente con el botón de habilidad, que es la acción principal. */
   background: transparent;
   color: var(--texto);
   border: 2px solid var(--borde);
@@ -303,16 +390,22 @@ kbd {
   font-family: monospace;
 }
 
-/* Confeti sencillo para la victoria final contra los 3 jefes */
+/* Confeti para la victoria final contra los 3 jefes. Cada pieza es un div
+   generado por lanzarConfeti() en script.js con una posición horizontal
+   aleatoria (left) y un color aleatorio ya puestos en línea (style.left,
+   style.background); aquí solo se define su forma y su caída. */
 .confeti {
   position: fixed;
-  top: -12px;
+  top: -12px; /* empieza justo por encima de la pantalla */
   width: 8px;
   height: 8px;
-  z-index: 999;
-  animation: caer linear forwards;
+  z-index: 999; /* por encima de toda la interfaz */
+  animation: caer linear forwards; /* la duración exacta la fija script.js por pieza (animationDuration) */
 }
 
 @keyframes caer {
+  /* Cae hasta bastante más abajo del 100% de la pantalla (105vh) para que
+     ninguna pieza se quede "flotando" justo al borde inferior, y gira
+     mientras cae para que no parezca un simple cuadradito bajando recto. */
   to { transform: translateY(105vh) rotate(360deg); opacity: 0.3; }
 }
