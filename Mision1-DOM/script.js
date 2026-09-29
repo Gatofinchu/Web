@@ -19,6 +19,66 @@ const jefes = [
   { nombre: "Maestro",   dificultad: "optimo",  trampa: "deshacerInverso", habilidad: "deshacer" },
 ];
 
+// ---------- 1b. PIXEL ART DE CADA JEFE (dibujo original, no de ningún juego) ----------
+// Cada monstruo se define como MEDIO patrón (6 columnas: de fuera hacia el
+// centro) y se dibuja completo reflejándolo en espejo hasta 11 columnas.
+// Así solo hay que diseñar la mitad y el monstruo sale simétrico gratis.
+// Códigos: '.' vacío · '1' cuerpo · '2' cuerpo claro (sombreado) · '3' ojo · '4' pupila
+const PIXEL_CLASES = {
+  1: "pixel-cuerpo",
+  2: "pixel-cuerpo-claro",
+  3: "pixel-ojo",
+  4: "pixel-pupila",
+};
+
+const monstruos = [
+  {
+    // Novato: un slime redondeado y amistoso.
+    colorJefe: "#2f855a",
+    colorJefeClaro: "#48bb78",
+    mitad: [
+      "......",
+      "...11.",
+      "..1111",
+      ".11111",
+      "113411",
+      "111111",
+      "112211",
+      "..111.",
+    ],
+  },
+  {
+    // Estratega: un fantasma con base ondulada.
+    colorJefe: "#553c9a",
+    colorJefeClaro: "#805ad5",
+    mitad: [
+      ".1111.",
+      "111111",
+      "111111",
+      "113411",
+      "111111",
+      "111111",
+      "111211",
+      "11.11.",
+    ],
+  },
+  {
+    // Maestro: un monstruo con cuernos, el más temible.
+    colorJefe: "#9b2c2c",
+    colorJefeClaro: "#e53e3e",
+    mitad: [
+      "1.....",
+      "11....",
+      ".11111",
+      "111111",
+      "113411",
+      "111111",
+      "111211",
+      ".1111.",
+    ],
+  },
+];
+
 // Las 8 combinaciones que hacen ganar una partida de 3 en raya.
 const COMBINACIONES_GANADORAS = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8], // filas
@@ -52,6 +112,7 @@ const elIndicadorVidas = document.getElementById("indicador-vidas");
 const elMarcador = document.getElementById("marcador");
 const elBotonHabilidad = document.getElementById("boton-habilidad");
 const elBotonReiniciar = document.getElementById("boton-reiniciar");
+const elMonstruo = document.getElementById("monstruo");
 
 // ============================================================
 // 4. FUNCIONES DE LÓGICA PURA (no tocan el DOM, solo calculan)
@@ -149,8 +210,9 @@ function renderTablero() {
   });
 }
 
-function actualizarMensaje(texto) {
+function actualizarMensaje(texto, esTrampa = false) {
   elMensaje.textContent = texto;
+  elMensaje.classList.toggle("aviso-trampa", esTrampa);
 }
 
 function actualizarIndicadores() {
@@ -158,6 +220,43 @@ function actualizarIndicadores() {
   elIndicadorJefe.textContent = `Jefe ${jefeActual + 1}/3: ${jefe.nombre}`;
   elIndicadorVidas.textContent = `Vidas: ${"❤️".repeat(vidas)}`;
   elMarcador.textContent = `Rondas ganadas: ${rondasGanadas}`;
+}
+
+// Construye el pixel art de un monstruo a partir de su medio patrón,
+// reflejándolo en espejo para completar las 11 columnas.
+function construirPixelArt(contenedor, mitad) {
+  const filas = mitad.length;
+  const columnas = mitad[0].length * 2 - 1; // la última columna del medio patrón es el eje central
+
+  contenedor.style.gridTemplateColumns = `repeat(${columnas}, 1fr)`;
+  contenedor.style.gridTemplateRows = `repeat(${filas}, 1fr)`;
+  contenedor.innerHTML = "";
+
+  mitad.forEach((mediaFila) => {
+    const mitadInvertida = mediaFila.slice(0, -1).split("").reverse().join("");
+    const filaCompleta = mediaFila + mitadInvertida;
+
+    for (const caracter of filaCompleta) {
+      const pixel = document.createElement("div");
+      pixel.className = "pixel";
+      if (caracter !== ".") {
+        pixel.classList.add(PIXEL_CLASES[caracter]);
+      } else {
+        pixel.style.visibility = "hidden"; // hueco: ocupa espacio en la rejilla pero no se ve
+      }
+      contenedor.appendChild(pixel);
+    }
+  });
+}
+
+// Pinta el color y el pixel art del jefe actual. Se llama cada vez que
+// cambiamos de jefe (o reiniciamos), nunca durante la ronda en curso.
+function actualizarMonstruo() {
+  const monstruo = monstruos[jefeActual];
+  document.documentElement.style.setProperty("--color-jefe", monstruo.colorJefe);
+  document.documentElement.style.setProperty("--color-jefe-claro", monstruo.colorJefeClaro);
+  elMonstruo.classList.remove("derrotado");
+  construirPixelArt(elMonstruo, monstruo.mitad);
 }
 
 function actualizarBotonHabilidad() {
@@ -344,29 +443,63 @@ function turnoJefe() {
   turno = "jugador";
   renderTablero();
   actualizarBotonHabilidad();
-  actualizarMensaje(mensajeTrampa ? `${mensajeTrampa} Ahora, tu turno.` : "Tu turno");
+  actualizarMensaje(
+    mensajeTrampa ? `${mensajeTrampa} Ahora, tu turno.` : "Tu turno",
+    Boolean(mensajeTrampa)
+  );
 }
 
 // ============================================================
 // 10. RESULTADOS DE RONDA
 // ============================================================
 
+const DURACION_MUERTE_MS = 700; // debe coincidir con la duración de @keyframes muerte en style.css
+
+// Suelta unos cuantos cuadraditos de colores cayendo, solo para la victoria final.
+function lanzarConfeti() {
+  const colores = ["#2f855a", "#553c9a", "#9b2c2c", "#ecc94b", "#3182ce"];
+  for (let i = 0; i < 26; i++) {
+    const pieza = document.createElement("div");
+    pieza.className = "confeti";
+    pieza.style.left = `${Math.random() * 100}vw`;
+    pieza.style.background = colores[Math.floor(Math.random() * colores.length)];
+    pieza.style.animationDuration = `${1.4 + Math.random() * 1.2}s`;
+    document.body.appendChild(pieza);
+    pieza.addEventListener("animationend", () => pieza.remove());
+  }
+}
+
 function ganarRonda() {
   rondasGanadas++;
-  jefeActual++;
 
-  if (jefeActual >= jefes.length) {
-    actualizarMensaje("🏆 ¡Has vencido a los 3 jefes! Pulsa R para volver a jugar.");
-    jefeActual = 0; // se prepara para una nueva vuelta si el jugador reinicia
-    turno = "fin";  // bloquea el tablero: la partida ya ha terminado del todo
-    renderTablero();
-    actualizarIndicadores();
-    actualizarBotonHabilidad();
-    return;
-  }
+  // Bloqueamos el tablero y lanzamos la animación de "muerte" del jefe
+  // ANTES de tocar jefeActual, para poder seguir mostrando su nombre.
+  turno = "fin";
+  renderTablero();
+  actualizarBotonHabilidad();
+  actualizarIndicadores();
+  actualizarMensaje(`¡Has vencido a ${jefes[jefeActual].nombre}!`);
+  elMonstruo.classList.add("derrotado");
 
-  actualizarMensaje(`¡Has ganado! Empieza el siguiente jefe: ${jefes[jefeActual].nombre}`);
-  prepararRonda();
+  // Esperamos a que termine la animación antes de preparar la siguiente ronda,
+  // para que el jugador vea morir al jefe en vez de que desaparezca de golpe.
+  setTimeout(() => {
+    jefeActual++;
+
+    if (jefeActual >= jefes.length) {
+      jefeActual = 0; // se prepara para una nueva vuelta si el jugador reinicia
+      prepararRonda();
+      turno = "fin"; // la partida ha terminado del todo: el tablero queda bloqueado
+      renderTablero();
+      actualizarBotonHabilidad();
+      actualizarMensaje("🏆 ¡Has vencido a los 3 jefes! Pulsa R para volver a jugar.");
+      lanzarConfeti();
+      return;
+    }
+
+    prepararRonda();
+    actualizarMensaje(`¡Has ganado! Empieza el siguiente jefe: ${jefes[jefeActual].nombre}`);
+  }, DURACION_MUERTE_MS);
 }
 
 function empatarRonda() {
@@ -400,6 +533,7 @@ function prepararRonda() {
   modoHabilidad = false;
   trampaUsada = false;
 
+  actualizarMonstruo();
   renderTablero();
   actualizarIndicadores();
   actualizarBotonHabilidad();

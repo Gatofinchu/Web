@@ -4,18 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tres en Raya: Cazador de Jefes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <main class="contenedor">
-    <h1>Tres en Raya: Cazador de Jefes</h1>
-    <p class="subtitulo">Vence a los 3 jefes. Ten cuidado: hacen trampas.</p>
+    <h1>Tres en Raya<span class="h1-sub">Cazador de Jefes</span></h1>
 
     <!-- Indicador del jefe actual y las vidas del jugador -->
     <div class="panel-estado">
       <span id="indicador-jefe">Jefe 1/3: Novato</span>
       <span id="indicador-vidas">Vidas: ❤️❤️❤️</span>
+    </div>
+
+    <!-- El monstruo del jefe actual: pixel art dibujado con divs desde JS -->
+    <div id="escenario-monstruo" class="escenario-monstruo">
+      <div id="monstruo" class="pixel-art"></div>
     </div>
 
     <!-- Marcador de partidas -->

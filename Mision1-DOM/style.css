@@ -1,26 +1,39 @@
-/* ===== Variables de color (claro / oscuro) ===== */
+/* ===== Paleta base (claro) ===== */
 :root {
-  --fondo: #f4f4f8;
+  --fondo: #eef1f8;
+  --fondo-patron: #e2e7f5;
   --texto: #1a1a2e;
   --panel: #ffffff;
-  --borde: #d0d0e0;
+  --borde: #c9cfe6;
+  --sombra: rgba(30, 30, 60, 0.15);
+
   --acento-x: #2c5282;
   --acento-o: #c53030;
   --acento-bloqueada: #a0aec0;
+
   --boton: #2c5282;
   --boton-texto: #ffffff;
+
+  /* Color del jefe actual: lo cambia JS según la ronda */
+  --color-jefe: #2f855a;
+  --color-jefe-claro: #48bb78;
 }
 
+/* ===== Paleta oscura ===== */
 body.dark {
-  --fondo: #131320;
+  --fondo: #0f0f1e;
+  --fondo-patron: #16172b;
   --texto: #f0f0f5;
-  --panel: #1e1e30;
-  --borde: #3a3a55;
+  --panel: #1c1d33;
+  --borde: #33345a;
+  --sombra: rgba(0, 0, 0, 0.5);
+
   --acento-x: #63b3ed;
   --acento-o: #fc8181;
   --acento-bloqueada: #4a5568;
+
   --boton: #63b3ed;
-  --boton-texto: #131320;
+  --boton-texto: #0f0f1e;
 }
 
 * {
@@ -33,47 +46,123 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--fondo);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--texto);
-  transition: background 0.3s ease, color 0.3s ease;
+  background-color: var(--fondo);
+  background-image:
+    linear-gradient(var(--fondo-patron) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fondo-patron) 1px, transparent 1px);
+  background-size: 24px 24px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .contenedor {
   width: 100%;
-  max-width: 420px;
-  padding: 24px;
+  max-width: 440px;
+  padding: 28px 24px 36px;
   text-align: center;
 }
 
 h1 {
-  font-size: 1.5rem;
-  margin-bottom: 4px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 18px;
+  color: var(--texto);
+  letter-spacing: 1px;
 }
 
-.subtitulo {
-  color: #718096;
-  margin-top: 0;
-  margin-bottom: 20px;
+.h1-sub {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--color-jefe);
+  margin-top: 6px;
+  transition: color 0.4s ease;
 }
 
 .panel-estado {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: var(--panel);
-  border: 1px solid var(--borde);
-  border-radius: 8px;
-  padding: 8px 14px;
+  border: 2px solid var(--borde);
+  border-radius: 10px;
+  padding: 9px 14px;
   margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 0 var(--sombra);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ===== Escenario del monstruo (pixel art) ===== */
+.escenario-monstruo {
+  background: var(--panel);
+  border: 2px solid var(--borde);
+  border-radius: 10px;
+  padding: 14px 0 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 0 var(--sombra);
+  overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.pixel-art {
+  display: grid;
+  margin: 0 auto;
+  width: 132px;
+  aspect-ratio: 11 / 8;
+  image-rendering: pixelated;
+  animation: flotar 2.4s ease-in-out infinite;
+}
+
+.pixel {
+  width: 100%;
+  height: 100%;
+}
+
+.pixel-cuerpo { background: var(--color-jefe); }
+.pixel-cuerpo-claro { background: var(--color-jefe-claro); }
+.pixel-ojo { background: #ffffff; }
+.pixel-pupila { background: #14141f; }
+
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* El jefe "muere" al perder la ronda contra el jugador */
+.pixel-art.derrotado {
+  animation: muerte 0.7s ease-in forwards;
+}
+
+@keyframes muerte {
+  0%   { transform: translateY(0) scale(1) rotate(0deg); filter: brightness(1) saturate(1); opacity: 1; }
+  15%  { transform: translateY(-4px) scale(1.12) rotate(-6deg); filter: brightness(2.4) saturate(0.3); }
+  35%  { transform: translateY(2px) scale(0.9) rotate(6deg); filter: brightness(1) saturate(1); }
+  55%  { transform: translateY(-2px) scale(1.05) rotate(-4deg); }
+  100% { transform: translateY(30px) scale(0.15) rotate(25deg); opacity: 0; }
 }
 
 .mensaje {
   font-weight: 700;
   min-height: 24px;
-  margin: 10px 0 18px;
+  margin: 4px 0 14px;
+  font-size: 0.95rem;
+}
+
+/* Aviso visual cuando el jefe hace trampa */
+.mensaje.aviso-trampa {
+  color: var(--acento-o);
+  animation: sacudida 0.4s ease;
+}
+
+@keyframes sacudida {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }
 
 .tablero {
@@ -85,27 +174,41 @@ h1 {
 
 .casilla {
   aspect-ratio: 1 / 1;
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 800;
   background: var(--panel);
   border: 2px solid var(--borde);
   border-radius: 10px;
   color: var(--texto);
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.3s ease, transform 0.1s ease;
+  transition: background-color 0.2s ease, border-color 0.3s ease, transform 0.1s ease;
+  box-shadow: 0 2px 0 var(--sombra);
 }
 
 .casilla:hover:not(:disabled) {
-  transform: scale(1.03);
+  transform: translateY(-2px);
+  border-color: var(--color-jefe);
+}
+
+.casilla:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .casilla:disabled {
   cursor: not-allowed;
 }
 
-/* Colorea la X y la O directamente según su contenido de texto */
 .casilla.marca-x { color: var(--acento-x); }
 .casilla.marca-o { color: var(--acento-o); }
+
+@keyframes aparece {
+  from { transform: scale(0) rotate(-15deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.casilla.marca-x, .casilla.marca-o {
+  animation: aparece 0.22s ease-out;
+}
 
 .casilla.bloqueada {
   background: repeating-linear-gradient(
@@ -125,27 +228,49 @@ h1 {
 }
 
 .boton {
-  padding: 10px 16px;
+  padding: 11px 16px;
   border: none;
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
 }
 
 .boton-habilidad {
   background: var(--boton);
   color: var(--boton-texto);
+  box-shadow: 0 3px 0 var(--sombra);
+}
+
+.boton-habilidad:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.boton-habilidad:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--sombra);
 }
 
 .boton-habilidad:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Pulso suave cuando la habilidad está lista para usarse */
+.boton-habilidad:not(:disabled) {
+  animation: pulso-listo 1.8s ease-in-out infinite;
+}
+
+@keyframes pulso-listo {
+  0%, 100% { box-shadow: 0 3px 0 var(--sombra); }
+  50% { box-shadow: 0 3px 0 var(--sombra), 0 0 0 4px color-mix(in srgb, var(--boton) 35%, transparent); }
 }
 
 /* Se activa mientras esperamos que el jugador elija el objetivo de su habilidad */
 .boton-habilidad.esperando-objetivo {
-  animation: parpadeo 0.8s infinite;
+  animation: parpadeo 0.7s infinite;
   outline: 3px solid var(--acento-o);
 }
 
@@ -157,12 +282,16 @@ h1 {
 .boton-secundario {
   background: transparent;
   color: var(--texto);
-  border: 1px solid var(--borde);
+  border: 2px solid var(--borde);
+}
+
+.boton-secundario:hover {
+  border-color: var(--color-jefe);
 }
 
 .pista {
   margin-top: 16px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #718096;
 }
 
@@ -172,4 +301,18 @@ kbd {
   border-radius: 4px;
   padding: 1px 6px;
   font-family: monospace;
+}
+
+/* Confeti sencillo para la victoria final contra los 3 jefes */
+.confeti {
+  position: fixed;
+  top: -12px;
+  width: 8px;
+  height: 8px;
+  z-index: 999;
+  animation: caer linear forwards;
+}
+
+@keyframes caer {
+  to { transform: translateY(105vh) rotate(360deg); opacity: 0.3; }
 }
