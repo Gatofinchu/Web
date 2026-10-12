@@ -1,7 +1,7 @@
 // Capa de datos: sabe hablar con la API NHTSA vPIC (Departamento de Transporte
 // de EE. UU.) y devuelve objetos limpios y seguros para el resto de la app.
 
-import { fetchJSON } from './http.js';
+import { cachedFetch } from './cache.js';
 
 const BASE_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles';
 
@@ -33,7 +33,7 @@ export async function fetchModels(make, year) {
     `${BASE_URL}/GetModelsForMakeYear/make/${encodeURIComponent(make.toLowerCase())}` +
     `/modelyear/${year}/vehicletype/car?format=json`;
 
-  const data = await fetchJSON(url);
+  const data = await cachedFetch(url);
   const results = Array.isArray(data?.Results) ? data.Results : [];
 
   return results
