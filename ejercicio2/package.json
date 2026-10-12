@@ -1,0 +1,18 @@
+{
+  "name": "ejercicio2-async-odyssey",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Garaje: catálogo de coches con la API NHTSA vPIC, fetch + async/await, módulos ES, métodos de array y caché en localStorage (U2 · M2).",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}
