@@ -1,0 +1,125 @@
+:root {
+  --asphalt: #14161c;
+  --panel: #1d2029;
+  --line: #2c303c;
+  --text: #f2f2ee;
+  --muted: #9aa0b4;
+  --yellow: #ffd400;
+  --plate: #f4f1e6;
+  --plate-ink: #15171c;
+  --blue: #0b3d91;
+  --danger: #ff6b6b;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--asphalt);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Cabecera con la línea discontinua de la carretera */
+.header {
+  text-align: center;
+  padding: 2.5rem 1rem 1.5rem;
+  border-bottom: 4px dashed var(--yellow);
+  margin-bottom: 1rem;
+}
+.eyebrow { margin: 0; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; }
+.header h1 { margin: 0.25rem 0 0; font-size: 2.4rem; color: var(--yellow); }
+.tagline { margin: 0.25rem 0 0; color: var(--muted); font-style: italic; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem; }
+.controls label { flex: 1 1 160px; display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; color: var(--muted); }
+.controls input,
+.controls select {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+
+.summary { color: var(--muted); font-size: 0.9rem; min-height: 1.4em; }
+
+/* Agrupación por inicial */
+.group { margin-bottom: 1.5rem; }
+.group-letter {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+  color: var(--yellow);
+  border-bottom: 1px solid var(--line);
+}
+
+.plates { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.9rem; }
+
+/* Cada modelo es una matrícula */
+.plate {
+  display: flex;
+  min-height: 78px;
+  background: var(--plate);
+  color: var(--plate-ink);
+  border: 2px solid #0a0a0a;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
+}
+.plate-band {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  background: var(--blue);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.plate-body { display: flex; flex-direction: column; justify-content: center; padding: 0.5rem 0.8rem; min-width: 0; }
+.plate-name { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; overflow-wrap: anywhere; }
+.plate-id { font-size: 0.7rem; color: #555b6b; }
+
+/* Estado de carga: matrículas esqueleto animadas */
+.skeleton { background: var(--panel); border-color: var(--line); animation: pulse 1.2s ease-in-out infinite; box-shadow: none; }
+@keyframes pulse { 50% { opacity: 0.45; } }
+
+/* Estados de error y vacío */
+.state { text-align: center; padding: 2rem 1rem; background: var(--panel); border-radius: 16px; }
+.state.error { border: 1px solid var(--danger); }
+.state.error strong { color: var(--danger); }
+
+button {
+  padding: 0.65rem 1.4rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--yellow);
+  color: #1a1a1a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.6; cursor: wait; }
+
+/* Pie con la caché y la bitácora */
+.footer { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.5rem 1rem; color: var(--muted); font-size: 0.85rem; }
+.footer p { margin: 0; }
+.link-button { background: none; color: var(--muted); padding: 0; font-weight: 400; text-decoration: underline; }
+.log { width: min(680px, 100%); }
+.log summary { cursor: pointer; text-align: center; }
+.log ol { list-style: none; margin: 0.75rem 0 0; padding: 0; font-size: 0.8rem; }
+.log li { display: grid; grid-template-columns: 4.5rem 1fr auto; gap: 0.5rem; padding: 0.2rem 0.5rem; border-radius: 6px; }
+.log li:nth-child(odd) { background: var(--panel); }
+.log-source { font-weight: 700; }
+.log-cache .log-source { color: #4ade80; }
+.log-red .log-source { color: var(--yellow); }
+.log code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}

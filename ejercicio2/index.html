@@ -3,10 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Catálogo de coches con la API pública NHTSA vPIC, hecho con Vite, fetch y async/await." />
     <title>Async Odyssey · Garaje</title>
   </head>
   <body>
-    <h1>Async Odyssey · Garaje</h1>
+    <header class="header">
+      <p class="eyebrow">NHTSA vPIC · API pública de EE. UU.</p>
+      <h1>Async Odyssey</h1>
+      <p class="tagline">«El event loop no espera a nadie.»</p>
+    </header>
+
+    <main class="container">
+      <section class="controls" aria-label="Filtros">
+        <label>Marca
+          <select id="make"></select>
+        </label>
+        <label>Año
+          <select id="year"></select>
+        </label>
+        <label>Buscar
+          <input id="search" type="search" placeholder="Mustang, Model 3…" autocomplete="off" />
+        </label>
+        <label>Orden
+          <select id="sort">
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+            <option value="length">Nombre más largo</option>
+          </select>
+        </label>
+      </section>
+
+      <p id="summary" class="summary" aria-live="polite"></p>
+
+      <section id="catalog" class="catalog" aria-live="polite" aria-busy="false"></section>
+    </main>
+
+    <footer class="footer">
+      <p><span id="cache-info"></span> · <button id="clear-cache" type="button" class="link-button">Vaciar caché</button></p>
+      <details class="log">
+        <summary>Bitácora de la odisea (últimas peticiones)</summary>
+        <ol id="request-log"></ol>
+      </details>
+    </footer>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
