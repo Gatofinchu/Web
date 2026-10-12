@@ -2,6 +2,7 @@
 // de EE. UU.) y devuelve objetos limpios y seguros para el resto de la app.
 
 import { cachedFetch } from './cache.js';
+import { ApiError } from './http.js';
 
 const BASE_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles';
 
@@ -40,4 +41,24 @@ export async function fetchModels(make, year) {
     .map((raw) => normalizeModel(raw, make))
     .filter(Boolean)
     .filter((model, index, all) => all.findIndex((m) => m.id === model.id) === index); // sin duplicados
+}
+
+/**
+ * Cuántos turismos tiene cada marca en un año. Las peticiones salen en paralelo
+ * con Promise.allSettled: si una marca falla, las demás se muestran igualmente
+ * (con Promise.all, un solo fallo tumbaría el resultado completo).
+ */
+export async function fetchMakeCounts(makes, year) {
+  const settled = await Promise.allSettled(makes.map((make) => fetchModels(make, year)));
+
+  const counts = settled.map((result, index) => ({
+    make: makes[index],
+    count: result.status === 'fulfilled' ? result.value.length : null, // null = esa marca falló
+  }));
+
+  if (counts.every(({ count }) => count === null)) {
+    throw new ApiError('No se pudo consultar ninguna marca.');
+  }
+
+  return counts;
 }

@@ -46,3 +46,18 @@ export function summarize(models) {
     letters: new Set(models.map((m) => getInitial(m.name))).size,
   };
 }
+
+/**
+ * Ordena las marcas por número de modelos y calcula el porcentaje de cada una
+ * respecto a la primera (para dibujar las barras). Descarta las que fallaron.
+ */
+export function rankMakes(counts) {
+  const valid = counts.filter(({ count }) => count !== null);
+  const max = valid.reduce((best, { count }) => Math.max(best, count), 0);
+
+  const ranking = valid
+    .toSorted((a, b) => b.count - a.count || a.make.localeCompare(b.make))
+    .map((entry) => ({ ...entry, percent: max ? Math.round((entry.count / max) * 100) : 0 }));
+
+  return { ranking, failed: counts.length - valid.length };
+}

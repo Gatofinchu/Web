@@ -61,6 +61,35 @@ export function renderSummary(element, text) {
   element.textContent = text;
 }
 
+export function renderDuelLoading(container, total) {
+  container.setAttribute('aria-busy', 'true');
+  container.innerHTML = `<div class="state"><p>Consultando ${total} marcas a la vez…</p></div>`;
+}
+
+/** Ranking de marcas con barras proporcionales al número de modelos. */
+export function renderDuel(container, { year, ranking, failed }) {
+  container.setAttribute('aria-busy', 'false');
+
+  const rows = ranking
+    .map(
+      ({ make, count, percent }) => `
+      <li>
+        <span class="duel-make">${escapeHTML(make)}</span>
+        <span class="duel-bar"><span style="width:${percent}%"></span></span>
+        <span class="duel-count">${count}</span>
+      </li>`,
+    )
+    .join('');
+
+  const warning =
+    failed > 0 ? `<p class="duel-warning">⚠ ${failed} marca(s) no se pudieron consultar.</p>` : '';
+
+  container.innerHTML = `
+    <h3>Turismos por marca en ${year}</h3>
+    <ol class="duel-list">${rows}</ol>
+    ${warning}`;
+}
+
 /** Bitácora: qué peticiones salieron a la red y cuáles vinieron de la caché. */
 export function renderLog(list, entries) {
   list.innerHTML = entries

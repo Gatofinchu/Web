@@ -1,10 +1,12 @@
 // Punto de entrada: conecta datos (api), lógica (logic) y presentación (render).
 
 import './style.css';
-import { MAKES, MIN_YEAR, fetchModels } from './api.js';
+import { MAKES, MIN_YEAR, fetchMakeCounts, fetchModels } from './api.js';
 import { cacheStats, clearCache, getRequestLog } from './cache.js';
-import { getVisibleModels, groupByInitial, summarize } from './logic.js';
+import { getVisibleModels, groupByInitial, rankMakes, summarize } from './logic.js';
 import {
+  renderDuel,
+  renderDuelLoading,
   renderEmpty,
   renderError,
   renderGroups,
@@ -24,6 +26,8 @@ const searchInput = $('#search');
 const sortSelect = $('#sort');
 const summary = $('#summary');
 const catalog = $('#catalog');
+const duelBtn = $('#duel-btn');
+const duelResult = $('#duel-result');
 const cacheInfo = $('#cache-info');
 const clearCacheBtn = $('#clear-cache');
 const logList = $('#request-log');
@@ -100,8 +104,26 @@ async function loadModels() {
   }
 }
 
+/** Duelo de marcas: pide todas las marcas en paralelo y las ordena por nº de modelos. */
+async function runDuel() {
+  const year = Number(yearSelect.value);
+  duelBtn.disabled = true;
+  renderDuelLoading(duelResult, MAKES.length);
+
+  try {
+    const counts = await fetchMakeCounts(MAKES, year);
+    renderDuel(duelResult, { year, ...rankMakes(counts) });
+  } catch (error) {
+    renderError(duelResult, error.message, runDuel);
+  } finally {
+    duelBtn.disabled = false;
+    updateFooter();
+  }
+}
+
 [makeSelect, yearSelect].forEach((el) => el.addEventListener('change', loadModels));
 [searchInput, sortSelect].forEach((el) => el.addEventListener('input', render));
+duelBtn.addEventListener('click', runDuel);
 
 clearCacheBtn.addEventListener('click', () => {
   const removed = clearCache();
