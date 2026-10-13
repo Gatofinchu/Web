@@ -8,8 +8,12 @@
   <body>
     <main>
       <h1>Chistes 😄</h1>
-      <button id="btn">Pulsa para un chiste</button>
-      <p id="chiste"></p>
+      <div class="controls">
+        <button id="reload">Nuevos chistes</button>
+        <select id="filter" aria-label="Filtrar por categoría"></select>
+      </div>
+      <p id="status" aria-live="polite"></p>
+      <ul id="jokes"></ul>
     </main>
     <script type="module" src="/src/main.js"></script>
   </body>

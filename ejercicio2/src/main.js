@@ -1,27 +1,24 @@
 import './style.css'
+import { fetchJokes } from './api.js'
+import { normalize, filterByCategory, countByCategory } from './logic.js'
+import { showStatus, renderFilter, renderJokes } from './render.js'
 
-const boton = document.querySelector('#btn')
-const chiste = document.querySelector('#chiste')
+let jokes = []
 
-const URL = 'https://v2.jokeapi.dev/joke/Any?lang=es&safe-mode'
-
-async function pedirChiste() {
-  chiste.textContent = 'Cargando...'
+async function load() {
+  showStatus('Cargando chistes...')
   try {
-    const respuesta = await fetch(URL)
-    if (!respuesta.ok) throw new Error('Error ' + respuesta.status)
-    const datos = await respuesta.json()
-
-    if (datos.error) {
-      chiste.textContent = 'No hay chiste ahora mismo, prueba otra vez.'
-    } else if (datos.type === 'single') {
-      chiste.textContent = datos.joke
-    } else {
-      chiste.textContent = datos.setup + '\n\n' + datos.delivery
-    }
+    jokes = normalize(await fetchJokes())
+    renderFilter(countByCategory(jokes))
+    renderJokes(jokes)
   } catch (error) {
-    chiste.textContent = 'No se pudo cargar el chiste. ' + error.message
+    showStatus(`No se pudieron cargar los chistes: ${error.message}`, { error: true, retry: load })
   }
 }
 
-boton.addEventListener('click', pedirChiste)
+document.querySelector('#reload').addEventListener('click', load)
+document.querySelector('#filter').addEventListener('change', (e) =>
+  renderJokes(filterByCategory(jokes, e.target.value))
+)
+
+load()
