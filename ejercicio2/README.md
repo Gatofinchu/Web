@@ -37,6 +37,19 @@ src/
 - `map`: convierte cada chiste crudo en `{ id, category, text }`.
 - `reduce`: cuenta chistes por categoría.
 
-## Declaración de uso de IA
+## Uso de IA
 
-He usado **Claude (Anthropic)** como ayuda para montar y organizar este proyecto: proponer la estructura en módulos y escribir parte del código y de este README. Lo he revisado y lo he subido yo.
+- **Herramienta:** Claude (Anthropic).
+- **Qué hizo la IA:** casi todo el código (`api.js`, `logic.js`, `render.js`, `main.js`, `index.html`, `style.css`) y el borrador de este README. La elección de JokeAPI y la idea de la app (pedir chistes con un botón) fueron mías.
+- **Prompts reales relevantes:**
+  1. «hazlo sobre una api, que es joke api o algo asi, que es de chistes, y que sea pulsa para un chiste»
+  2. «añade eso, pero no quiero tener 300 lineas de codigo en general» (tras pasarle la rúbrica de la misión para que añadiera módulos, `filter`/`map`/`reduce`, robustez y README)
+- **Cómo lo verifiqué:** Claude probó `logic.js` en Node con datos de ejemplo (chistes de una línea, de dos partes, incompletos y `null`). No pudo ejecutar la app contra la API real. ⚠️ COMPLETAR: lo que comprobé yo en el navegador (carga, filtro, error de red, botón Reintentar).
+- **Qué escribí a mano:** ⚠️ COMPLETAR (por ejemplo, ajustes de estilos, textos o cambios que hice yo).
+
+## Autopsia
+
+Las dos decisiones más discutibles del código:
+
+1. **Pedir 10 chistes de golpe y filtrar en el cliente.** Así el filtro por categoría es instantáneo y solo hay una petición. El coste es que solo se filtra entre esos 10, y con `lang=es` la API puede devolver menos. *Alternativa descartada:* hacer una petición nueva a JokeAPI por cada categoría elegida (más chistes por categoría, pero más peticiones, más esperas y más estados de carga).
+2. **Construir las tarjetas con `createElement` y `textContent`** en lugar de `innerHTML` con plantillas de texto. Es más largo, pero el contenido de la API nunca se interpreta como HTML, así que no hay riesgo de inyectar código. *Alternativa descartada:* `innerHTML` con template strings, más corto y legible, pero inseguro si la API devolviera HTML.
