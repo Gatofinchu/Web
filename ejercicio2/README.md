@@ -14,28 +14,11 @@ App hecha con **Vite** que consume la API pública [JokeAPI](https://v2.jokeapi.
 
 Requiere Node.js. Desde esta carpeta:
 
-```bash
+
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # build de producción en dist/
-```
 
-## Estructura
-
-```
-src/
-  api.js     fetch a la API, response.ok y errores
-  logic.js   filter / map / reduce (normalizar, filtrar, contar)
-  render.js  pintar en el DOM y estados de carga/error
-  main.js    conecta los módulos y los eventos
-  style.css  estilos
-```
-
-## Uso de métodos de array
-
-- `filter`: descarta chistes incompletos y filtra por categoría.
-- `map`: convierte cada chiste crudo en `{ id, category, text }`.
-- `reduce`: cuenta chistes por categoría.
 
 ## Uso de IA
 
@@ -44,8 +27,8 @@ src/
 - **Prompts reales relevantes:**
   1. «Mira la rúbrica que te he pasado y dame ideas de como puedo introducir todo lo que me piden hacia mi aplicación de chistes»
   2. «Tengo problemas con el node, no me funciona, coge el error y corrigelo» (Tuve problemas al continuar el proyecto desde el ordenador de mi casa, pero con Claude lo pude solucionar) 
-- **Cómo lo verifiqué:** Claude probó `logic.js` en Node con datos de ejemplo (chistes de una línea, de dos partes, incompletos y `null`). No pudo ejecutar la app contra la API real. ⚠️ COMPLETAR: lo que comprobé yo en el navegador (carga, filtro, error de red, botón Reintentar).
-- **Qué escribí a mano:** ⚠️ COMPLETAR (por ejemplo, ajustes de estilos, textos o cambios que hice yo).
+-**VERIFICACION**Para verificar el trabajo, iba todo el rato actualizando mi localhost para ver como se iba actualizando, con la IA, iba añadiendo cosas e iba viendo su progreso.
+- **MANUAL** A mano he escrito este README.md, de código, todo con la IA, incluso pequeños cambio que podia hacer, como cambios de variables o cosas similares.
 
 ## Autopsia
 
