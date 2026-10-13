@@ -25,8 +25,8 @@ Copiar el enlace dado en una barra de búsqueda
 - **Prompts reales relevantes:**
   1. «Mira la rúbrica que te he pasado y dame ideas de como puedo introducir todo lo que me piden hacia mi aplicación de chistes»
   2. «Tengo problemas con el node, no me funciona, coge el error y corrigelo» (Tuve problemas al continuar el proyecto desde el ordenador de mi casa, pero con Claude lo pude solucionar) 
--**VERIFICACION**Para verificar el trabajo, iba todo el rato actualizando mi localhost para ver como se iba actualizando, con la IA, iba añadiendo cosas e iba viendo su progreso.
-- **MANUAL** A mano he escrito este README.md, de código, todo con la IA, incluso pequeños cambio que podia hacer, como cambios de variables o cosas similares.
+-**VERIFICACION:**Para verificar el trabajo, iba todo el rato actualizando mi localhost para ver como se iba actualizando, con la IA, iba añadiendo cosas e iba viendo su progreso.
+- **MANUAL:** A mano he escrito este README.md, de código, todo con la IA, incluso pequeños cambio que podia hacer, como cambios de variables o cosas similares.
 
 ## Autopsia
 
