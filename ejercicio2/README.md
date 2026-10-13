@@ -15,11 +15,9 @@ App hecha con **Vite** que consume la API pública [JokeAPI](https://v2.jokeapi.
 Requiere Node.js. Desde esta carpeta:
 
 
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # build de producción en dist/
-
-
+npm install\n
+npm run dev\n      
+Copiar el enlace dado en una barra de búsqueda\n
 ## Uso de IA
 
 - **Herramienta:** Claude (Anthropic).
