@@ -17,7 +17,7 @@ Requiere Node.js. Desde esta carpeta:
 
 npm install, 
 npm run dev,      
-Copiar el enlace dado en una barra de búsqueda\n
+Copiar el enlace dado en una barra de búsqueda
 ## Uso de IA
 
 - **Herramienta:** Claude (Anthropic).
