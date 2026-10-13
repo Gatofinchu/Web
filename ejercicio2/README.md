@@ -42,8 +42,8 @@ src/
 - **Herramienta:** Claude (Anthropic).
 - **Qué hizo la IA:** casi todo el código (`api.js`, `logic.js`, `render.js`, `main.js`, `index.html`, `style.css`) y el borrador de este README. La elección de JokeAPI y la idea de la app (pedir chistes con un botón) fueron mías.
 - **Prompts reales relevantes:**
-  1. «hazlo sobre una api, que es joke api o algo asi, que es de chistes, y que sea pulsa para un chiste»
-  2. «añade eso, pero no quiero tener 300 lineas de codigo en general» (tras pasarle la rúbrica de la misión para que añadiera módulos, `filter`/`map`/`reduce`, robustez y README)
+  1. «Mira la rúbrica que te he pasado y dame ideas de como puedo introducir todo lo que me piden hacia mi aplicación de chistes»
+  2. «Tengo problemas con el node, no me funciona, coge el error y corrigelo» (Tuve problemas al continuar el proyecto desde el ordenador de mi casa, pero con Claude lo pude solucionar) 
 - **Cómo lo verifiqué:** Claude probó `logic.js` en Node con datos de ejemplo (chistes de una línea, de dos partes, incompletos y `null`). No pudo ejecutar la app contra la API real. ⚠️ COMPLETAR: lo que comprobé yo en el navegador (carga, filtro, error de red, botón Reintentar).
 - **Qué escribí a mano:** ⚠️ COMPLETAR (por ejemplo, ajustes de estilos, textos o cambios que hice yo).
 
