@@ -28,8 +28,8 @@ Reconstrucción en **React 19** (con **Vite**) de la app de chistes de la misió
 - **Herramienta:** Claude (Anthropic).
 - **Qué hizo la IA:** casi todo el código (componentes, hooks, estilos) y el borrador de este README. La idea de reutilizar la app de chistes de la misión 2 y pasar el enunciado fueron míos.
 - **Prompt real relevante:** «Reconstruye (o reinventa) tu app de la misión anterior en React 19: componentes, props, estado y efectos» (enunciado de la M3 pasado a Claude, pidiendo crear un repositorio nuevo para ella).
-- **Verificación:** _(completa esto con lo que hagas tú: probar en localhost, revisar el código, defender cada parte...)_
-- **Hecho a mano:** _(indica aquí lo que escribas o cambies tú)_
+- **Verificación:** Ejecuté `npm install` y `npm run dev` en mi ordenador y comprobé en localhost que la app carga chistes. Probé el filtro de categoría y el buscador de texto, y probé las estrellas de favoritos y el botón «Copiar». También leí el código de los hooks y los componentes para poder explicar cómo funciona.
+- **Hecho a mano:** Nada del código lo escribí yo a mano: todo (componentes, hooks, estilos y buscador) lo generó Claude. Mi parte fue pedirlo, ir revisando lo que generaba y probarlo en localhost.
 
 ## Autopsia
 
