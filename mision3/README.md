@@ -7,6 +7,8 @@ Reconstrucción en **React 19** (con **Vite**) de la app de chistes de la misió
 
 - Pide 10 chistes a la vez (en español, con `safe-mode`) y los pinta como tarjetas.
 - Filtro por categoría, con el número de chistes de cada una.
+- **Buscador:** filtra los chistes por texto mientras escribes, con *debounce* de 300 ms para no filtrar en cada pulsación. Se combina con el filtro de categoría.
+- **Copiar:** cada tarjeta tiene un botón para copiar el chiste al portapapeles, con aviso de «¡Copiado!».
 - **Favoritos:** cada tarjeta tiene una estrella; los favoritos se guardan en `localStorage` y sobreviven a recargar la página. Un botón alterna entre los chistes nuevos y tus favoritos.
 - Estados visibles: "Cargando...", error con botón **Reintentar**, y mensajes cuando no hay resultados o no hay favoritos.
 
@@ -30,9 +32,11 @@ src/
 ├── jokes.js               # funciones puras: normalizar y contar
 ├── hooks/
 │   ├── useFetch.js        # ★ custom hook: fetch + loading/error + cancelación
+│   ├── useDebounce.js     # ★ custom hook: valor con retraso para el buscador
 │   └── useLocalStorage.js # ★ custom hook: useState persistente
 └── components/
     ├── Controls.jsx       # botones y filtro (sin estado propio)
+    ├── SearchBox.jsx      # campo de búsqueda controlado
     ├── StatusMessage.jsx  # cargando / error / vacío
     ├── JokeList.jsx       # lista con keys estables
     └── JokeCard.jsx       # una tarjeta
@@ -42,9 +46,9 @@ src/
 
 - **Estado mínimo:** solo `category`, `onlyFavorites`, `favorites` y lo que devuelve `useFetch`. Los chistes normalizados, los contadores por categoría, la lista visible y el conjunto de favoritos se **derivan** en cada render; no se duplican en estado.
 - **Lifting state:** el estado vive en `App` y baja por props a `Controls` y `JokeList`; los hijos avisan con callbacks (`onCategoryChange`, `onToggleFavorite`...).
-- **Efectos:** solo hay dos `useEffect`, ambos dentro de custom hooks. En `useFetch` se cancela la petición con `AbortController` en el cleanup y las dependencias son `[url, attempt]`; en `useLocalStorage` se sincroniza el valor con `[key, value]`.
+- **Efectos:** hay cuatro `useEffect`, todos con cleanup o dependencias justificadas. `useFetch` cancela la petición con `AbortController` (`[url, attempt]`); `useLocalStorage` sincroniza el valor (`[key, value]`); `useDebounce` cancela el temporizador anterior (`[value, delay]`); y `JokeCard` oculta el aviso «¡Copiado!» con un temporizador que se limpia (`[copied]`).
 - **Listas:** la `key` de cada tarjeta es `categoría-id`, porque el id de JokeAPI se repite entre categorías.
-- **Bonus:** dos custom hooks reutilizables, `useFetch` y `useLocalStorage`.
+- **Bonus:** tres custom hooks reutilizables: `useFetch`, `useLocalStorage` y `useDebounce`.
 
 ## Uso de IA
 
