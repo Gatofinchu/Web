@@ -12,35 +12,8 @@ Reconstrucción en **React 19** (con **Vite**) de la app de chistes de la misió
 - **Favoritos:** cada tarjeta tiene una estrella; los favoritos se guardan en `localStorage` y sobreviven a recargar la página. Un botón alterna entre los chistes nuevos y tus favoritos.
 - Estados visibles: "Cargando...", error con botón **Reintentar**, y mensajes cuando no hay resultados o no hay favoritos.
 
-## Cómo ejecutarlo
 
-Requiere Node.js. Desde esta carpeta:
 
-```bash
-npm install
-npm run dev
-```
-
-Abre el enlace que muestra la terminal (normalmente http://localhost:5173).
-
-## Estructura
-
-```
-src/
-├── main.jsx               # punto de entrada (createRoot)
-├── App.jsx                # único sitio con estado; deriva el resto
-├── jokes.js               # funciones puras: normalizar y contar
-├── hooks/
-│   ├── useFetch.js        # ★ custom hook: fetch + loading/error + cancelación
-│   ├── useDebounce.js     # ★ custom hook: valor con retraso para el buscador
-│   └── useLocalStorage.js # ★ custom hook: useState persistente
-└── components/
-    ├── Controls.jsx       # botones y filtro (sin estado propio)
-    ├── SearchBox.jsx      # campo de búsqueda controlado
-    ├── StatusMessage.jsx  # cargando / error / vacío
-    ├── JokeList.jsx       # lista con keys estables
-    └── JokeCard.jsx       # una tarjeta
-```
 
 ## Decisiones de React
 
