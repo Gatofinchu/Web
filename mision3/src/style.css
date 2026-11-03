@@ -114,3 +114,15 @@ button.active {
   border-radius: 8px;
   border: 1px solid #ccc;
 }
+
+.card .copy {
+  margin-top: 8px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  background: #eee;
+  color: #222;
+}
+
+.card .copy:hover {
+  background: #ddd;
+}
