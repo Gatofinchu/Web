@@ -103,3 +103,14 @@ button.active {
 .Spooky { border-color: #8b5cf6; }
 .Christmas { border-color: #ef4444; }
 .Dark { border-color: #111; }
+
+.search {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 16px 0 8px;
+  font-size: 1rem;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}

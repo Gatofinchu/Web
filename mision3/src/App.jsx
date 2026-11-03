@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import { useFetch } from './hooks/useFetch.js'
 import { useLocalStorage } from './hooks/useLocalStorage.js'
+import { useDebounce } from './hooks/useDebounce.js'
 import { JOKES_URL, normalize, countByCategory } from './jokes.js'
 import Controls from './components/Controls.jsx'
+import SearchBox from './components/SearchBox.jsx'
 import StatusMessage from './components/StatusMessage.jsx'
 import JokeList from './components/JokeList.jsx'
 
@@ -12,12 +14,18 @@ export default function App() {
   const [favorites, setFavorites] = useLocalStorage('reactor-core:favorites', [])
   const [category, setCategory] = useState('todas')
   const [onlyFavorites, setOnlyFavorites] = useState(false)
+  const [search, setSearch] = useState('')
 
   // Valores derivados (no se guardan en estado).
   const fetched = useMemo(() => normalize(data), [data])
   const source = onlyFavorites ? favorites : fetched
   const counts = countByCategory(source)
-  const visible = category === 'todas' ? source : source.filter((j) => j.category === category)
+  const query = useDebounce(search, 300).trim().toLowerCase()
+  const visible = source.filter(
+    (j) =>
+      (category === 'todas' || j.category === category) &&
+      (query === '' || j.text.toLowerCase().includes(query))
+  )
   const favoriteKeys = new Set(favorites.map((j) => j.key))
 
   function toggleFavorite(joke) {
@@ -48,6 +56,8 @@ export default function App() {
         favoritesCount={favorites.length}
         onReload={showFresh}
       />
+
+      <SearchBox value={search} onChange={setSearch} />
 
       {!onlyFavorites && loading && <StatusMessage>Cargando chistes...</StatusMessage>}
       {!onlyFavorites && error && (
