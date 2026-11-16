@@ -1,5 +1,0 @@
-mkdir mision4
-touch mision4/.gitkeep
-git add mision4
-git commit -m "Add mision4 folder"
-git push
