@@ -15,7 +15,7 @@ npm run dev      # servidor de desarrollo en http://localhost:5173
 npm run build    # build de producción en dist/
 ```
 
-El "backend" es una simulación en `src/api.js` que guarda en `localStorage`. Tiene latencia artificial y un 10 % de fallos al crear libros para poder probar los estados de carga, error y éxito. Para probar el descarte de datos corruptos, edita a mano la clave `mision4-books` en las herramientas de desarrollo del navegador y añade un elemento que no cumpla el esquema.
+El "backend" es una simulación en `src/api.js` que guarda en `localStorage`. Tiene latencia artificial y un 10 % de fallos al crear libros para poder probar los estados de carga, error y éxito. Para probar el reto bonus, pulsa **«Demo bonus: inyectar un registro corrupto»** debajo de la lista: mete en el almacenamiento un registro con valoración 9, sin autor y con fecha inválida. Al recargar la lista, `safeParse` lo descarta y aparece el aviso «Se descartaron 1 registros con datos no válidos».
 
 ## Estructura
 

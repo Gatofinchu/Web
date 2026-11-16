@@ -35,6 +35,20 @@ export async function fetchBooks() {
   return { books, discarded };
 }
 
+// Solo para la demo del reto bonus: mete en el "servidor" un registro que no cumple
+// el esquema (valoración 9, sin autor, fecha inválida) para ver que safeParse lo atrapa.
+export async function injectCorruptBook() {
+  await wait(200);
+  const corrupt = {
+    id: 'corrupto-' + Date.now(),
+    title: 'Registro roto',
+    rating: 9,
+    year: 'mil novecientos',
+    createdAt: 'ayer',
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([corrupt, ...readRawBooks()]));
+}
+
 export async function createBook(input) {
   await wait(500);
 

@@ -1,7 +1,8 @@
-import { useBooks } from '../queries.js';
+import { useBooks, useInjectCorruptBook } from '../queries.js';
 
 export default function BookList() {
   const { data, isPending, isError, error, isFetching, refetch } = useBooks();
+  const injectCorrupt = useInjectCorruptBook();
 
   if (isPending) {
     return (
@@ -54,6 +55,15 @@ export default function BookList() {
           ))}
         </ul>
       )}
+
+      <button
+        type="button"
+        className="secondary"
+        onClick={() => injectCorrupt.mutate()}
+        disabled={injectCorrupt.isPending}
+      >
+        Demo bonus: inyectar un registro corrupto
+      </button>
     </section>
   );
 }

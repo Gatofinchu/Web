@@ -98,3 +98,9 @@ button:disabled {
   margin: 0.25rem 0 0;
   color: #52606d;
 }
+
+button.secondary {
+  margin-top: 1rem;
+  background: #e4e7eb;
+  color: #1f2933;
+}

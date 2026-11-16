@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createBook, fetchBooks } from './api.js';
+import { createBook, fetchBooks, injectCorruptBook } from './api.js';
 
 export const bookKeys = {
   all: ['books'],
@@ -19,6 +19,15 @@ export function useCreateBook() {
   return useMutation({
     mutationFn: createBook,
     // Tras guardar, invalidamos toda la familia "books" para que la lista se vuelva a pedir.
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: bookKeys.all }),
+  });
+}
+
+export function useInjectCorruptBook() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: injectCorruptBook,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: bookKeys.all }),
   });
 }
