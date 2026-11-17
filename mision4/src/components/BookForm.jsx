@@ -55,7 +55,8 @@ export default function BookForm() {
   });
 
   return (
-    <form className="card" noValidate onSubmit={handleSubmit(onSubmit)}>
+    <form className="card ticket" noValidate onSubmit={handleSubmit(onSubmit)}>
+      <span className="card-eyebrow">Ficha de lectura</span>
       <h2>Registrar un libro</h2>
 
       <Field name="title" label="Título" error={errors.title}>

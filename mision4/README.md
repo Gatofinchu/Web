@@ -1,5 +1,7 @@
 # Club de lectura · M4 Full Contact Forms
 
+![Vista previa de la aplicación](preview.png)
+
 Aplicación React para registrar libros leídos en un club de lectura y consultar la biblioteca compartida.
 
 - **Formulario:** React Hook Form (`register` + `handleSubmit`), con errores accesibles (`aria-invalid`, `aria-describedby`, `role="alert"`).

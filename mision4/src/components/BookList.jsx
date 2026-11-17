@@ -6,7 +6,7 @@ export default function BookList() {
 
   if (isPending) {
     return (
-      <section className="card">
+      <section className="card shelf-panel">
         <p role="status">Cargando biblioteca…</p>
       </section>
     );
@@ -14,7 +14,7 @@ export default function BookList() {
 
   if (isError) {
     return (
-      <section className="card">
+      <section className="card shelf-panel">
         <p role="alert" className="error">
           No se pudo cargar la biblioteca: {error.message}
         </p>
@@ -28,8 +28,11 @@ export default function BookList() {
   const { books, discarded } = data;
 
   return (
-    <section className="card" aria-labelledby="library-title">
-      <h2 id="library-title">Biblioteca ({books.length})</h2>
+    <section className="card shelf-panel" aria-labelledby="library-title">
+      <span className="card-eyebrow">Estantería compartida</span>
+      <h2 id="library-title">
+        Biblioteca <span className="count">{books.length}</span>
+      </h2>
 
       {isFetching && <p role="status">Actualizando…</p>}
 
@@ -44,13 +47,25 @@ export default function BookList() {
       ) : (
         <ul className="book-list">
           {books.map((book) => (
-            <li key={book.id}>
-              <strong>{book.title}</strong> · {book.author} · {book.category} ({book.year})
-              <span className="stars" aria-label={`${book.rating} de 5 estrellas`}>
-                {' '}
-                {'★'.repeat(book.rating)}
-              </span>
-              {book.notes && <p className="notes">{book.notes}</p>}
+            <li key={book.id} className="book" data-category={book.category}>
+              {/* Portada decorativa: el color depende de la categoría */}
+              <div className="book-cover" aria-hidden="true">
+                <span>{book.title.charAt(0)}</span>
+              </div>
+              <div className="book-info">
+                <strong>{book.title}</strong>
+                <span className="book-author">{book.author}</span>
+                <span className="book-meta">
+                  <span className="tag">{book.category}</span> {book.year}
+                </span>
+                <span className="stars" aria-label={`${book.rating} de 5 estrellas`}>
+                  {'★'.repeat(book.rating)}
+                  <span className="stars-empty" aria-hidden="true">
+                    {'★'.repeat(5 - book.rating)}
+                  </span>
+                </span>
+                {book.notes && <p className="notes">“{book.notes}”</p>}
+              </div>
             </li>
           ))}
         </ul>
