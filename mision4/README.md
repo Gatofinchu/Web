@@ -37,10 +37,10 @@ src/
 ## Uso de IA
 
 - **Herramienta:** Claude (Anthropic), a través de Claude Code / claude.ai.
-- **Qué se hizo con IA:** la primera versión completa del proyecto (estructura de archivos, esquema Zod, capa de API simulada, hooks de TanStack Query, componentes y estilos) se generó a partir del enunciado de la práctica, que se adjuntó en la conversación.
-- **Prompt real usado:** «Haz la misión 4 según el enunciado adjunto y déjala en la carpeta mision4 del repositorio.»
-- **Cómo se verificó:** revisión manual del código generado, comprobación de que cada requisito de la rúbrica está cubierto (RHF, Zod con `zodResolver`, `useQuery`/`useMutation` con invalidación, estados de carga/error/éxito, `safeParse` en la respuesta, `.gitignore`, al menos 3 archivos fuente) y comprobación de que las dependencias del `package.json` son las exigidas.
-- **Qué se escribió a mano:** _pendiente: el alumno debe completar esta línea con lo que haya modificado o entendido por su cuenta._
+- **Qué se hizo con IA:** todo. El proyecto completo lo generó la IA a partir del enunciado de la práctica, que se adjuntó en la conversación: estructura de archivos, esquema Zod, capa de API simulada, hooks de TanStack Query, componentes, estilos (incluido el rediseño con tema de biblioteca y el fondo SVG de estanterías), este README y los commits.
+- **Prompts reales usados:** «Haz la misión 4 según el enunciado adjunto y déjala en la carpeta mision4 del repositorio.» y «Métele un fondo que sea como una biblioteca, y dale más diseño, quiero que sea muy visual todo.»
+- **Cómo se verificó:** la IA comprobó el esquema Zod con datos válidos, inválidos y corruptos, compiló los archivos JSX con esbuild y revisó que cada requisito de la rúbrica estuviera cubierto. El diseño se comprobó con una captura renderizada en un navegador sin interfaz.
+- **Qué se escribió a mano:** nada. No hay código escrito a mano; las decisiones de la Autopsia también las propuso la IA.
 
 ## Autopsia
 
